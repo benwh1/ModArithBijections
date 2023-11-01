@@ -4,8 +4,7 @@ import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.ZMod.Defs
 import Mathlib.Init.Function
 
-def f (k : ℕ) (x : ZMod (2 ^ k)) : ZMod (2 ^ k) := 3 ^ x.val + x
-def g (x : ℕ) : ℕ := 3 ^ x + x
+def f (x : ℕ) : ℕ := 3 ^ x + x
 
 open Function
 
@@ -110,7 +109,7 @@ lemma div_pow_diff (k : ℕ) (x y : ℕ) :
   use 3^y * t2
   ring
 
-lemma inductive_step (k : ℕ) (x y : ℕ) (h : g x ≡ g y [MOD 2^k]) :
+lemma inductive_step (k : ℕ) (x y : ℕ) (h : f x ≡ f y [MOD 2^k]) :
   ∀ m, m < k -> x ≡ y [MOD 2^m] -> x ≡ y [MOD 2^(m+1)] := by
   intro m hmk hxym
 
@@ -130,7 +129,7 @@ lemma inductive_step (k : ℕ) (x y : ℕ) (h : g x ≡ g y [MOD 2^k]) :
     { exact hge }
   have hg_ge : 3^x+x >= 3^y+y := Nat.add_le_add h3ge hge
 
-  unfold g at h
+  unfold f at h
 
   have modk_pos : 2^k > 0 := Nat.pow_two_pos k
   have modm_pos : 2^m > 0 := Nat.pow_two_pos m
@@ -170,7 +169,7 @@ lemma inductive_step (k : ℕ) (x y : ℕ) (h : g x ≡ g y [MOD 2^k]) :
   simp
   linarith
 
-lemma inductive_step_conclusion (k : ℕ) (x y : ℕ) (h : g x ≡ g y [MOD 2^k]) :
+lemma inductive_step_conclusion (k : ℕ) (x y : ℕ) (h : f x ≡ f y [MOD 2^k]) :
   ∀ m : ℕ, m < k -> x ≡ y [MOD 2^m] := by
   intro m
   induction' m with m h1
@@ -182,7 +181,7 @@ lemma inductive_step_conclusion (k : ℕ) (x y : ℕ) (h : g x ≡ g y [MOD 2^k]
     exact inductive_step k x y h m hmk hmodm
   }
 
-lemma inductive_step_final (k : ℕ) (x y : ℕ) (h : g x ≡ g y [MOD 2^k]) :
+lemma inductive_step_final (k : ℕ) (x y : ℕ) (h : f x ≡ f y [MOD 2^k]) :
   x ≡ y [MOD 2^k] := by
   cases' k with n
   { simp; apply Nat.modEq_one }
