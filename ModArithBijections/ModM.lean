@@ -1,13 +1,4 @@
-import Mathlib.Data.Nat.ModEq
-import Mathlib.Data.Nat.Parity
-import Mathlib.Data.Nat.Totient
-import Mathlib.Data.ZMod.Basic
-import Mathlib.Data.ZMod.Defs
 import Mathlib.FieldTheory.Finite.Basic
-import Mathlib.GroupTheory.OrderOfElement
-import Mathlib.Init.Function
-import Mathlib.Order.RelClasses
-import Mathlib.Tactic.NormNum.Core
 import ModArithBijections.Helper
 
 def f (x : ℕ) : ℕ := 3 ^ x + x
