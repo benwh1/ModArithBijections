@@ -94,7 +94,8 @@ lemma seq_dvd_seq_zero {m} (h : 3^m ≡ 1 [MOD m]) : ∀ k, seq m k ∣ m := by
     exact Nat.dvd_trans h1 hk
   }
 
-lemma seq_pos {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m]) k : seq m k > 0 := by
+lemma seq_pos {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m]) : ∀ k, seq m k > 0 := by
+  intro k
   induction' k with k hk
   { exact hm }
   {
@@ -115,10 +116,7 @@ lemma seq_pos {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m]) k : seq m k > 0 := by
       apply Fintype.finite
       apply ZMod.fintype
     have h := orderOf_pos three
-    unfold order; simp
-    have heq : orderOf three = orderOf (3 : ZMod (seq m k)) := by
-      apply orderOf_units.symm
-    rw [← heq]
+    rw [← orderOf_units] at h
     exact h
   }
 
@@ -131,8 +129,7 @@ lemma seq_dec {m k} (hm : m > 0) (h : 3^m ≡ 1 [MOD m]) (hg1 : seq m k > 1)
     exact Nat.ModEq.of_mul_right d h
   apply order_lt hg1 hcoprime
 
-lemma seq_lt_seq_zero {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m])
-  : ∀ k, seq m k <= m := by
+lemma seq_lt_seq_zero {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m]) : ∀ k, seq m k <= m := by
   intro k
   have hdvd := seq_dvd_seq_zero h k
   exact Nat.le_of_dvd hm hdvd
@@ -143,15 +140,14 @@ lemma seq_one_next {m} (h : seq m k = 1) : seq m k.succ = 1 := by
   unfold order
   simp
 
-lemma seq_one {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m])
-  : ∃ k, seq m k = 1 := by
+lemma seq_one {m} (hmgt : m > 0) (hm : 3^m ≡ 1 [MOD m]) : ∃ k, seq m k = 1 := by
   let r := Nat.lt
   let C := fun x => ∃ k, seq m k <= x
-  have : WellFounded Nat.lt := by
-    apply Nat.lt_wfRel.wf
-  have well_ordering := @WellFounded.induction_bot ℕ Nat.lt this m 1 C
-  unfold_let r C at well_ordering
+  have : WellFounded r := by apply Nat.lt_wfRel.wf
+  have well_ordering := @WellFounded.induction_bot ℕ r this m 1 C
+  unfold_let at well_ordering
   simp at well_ordering
+
   have seq_le_1 : ∃ k, seq m k <= 1 := by
     apply well_ordering
     {
@@ -163,14 +159,10 @@ lemma seq_one {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m])
           intro n
           cases' n with n
           { simp }
-          {
-            cases' n with n
-            { simp }
-            { simp }
-          }
+          { cases' n with n; repeat simp }
         cases' h0 (seq m x) with h0 h1
         {
-          have h1 := seq_pos hm h x
+          have h1 := seq_pos hmgt hm x
           rw [h0] at h1
           contradiction
         }
@@ -182,42 +174,36 @@ lemma seq_one {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m])
             exact Ne.lt_of_le' hb hx
           }
           {
-            have hxs : seq m x.succ < seq m x := by
-              apply seq_dec hm h hg1
+            have hxs : seq m x.succ < seq m x := seq_dec hmgt hm hg1
             exact Nat.lt_of_lt_of_le hxs hx
           }
         }
       }
       use x.succ
     }
-    {
-      apply seq_lt_seq_zero hm h
-    }
-    exact 0
+    { apply seq_lt_seq_zero hmgt hm }
+    { exact 0 }
   have ⟨l, hl⟩ := seq_le_1
-  have hseq_pos : seq m l > 0 := by apply seq_pos hm h
+  have hseq_pos : seq m l > 0 := seq_pos hmgt hm l
   use l
   exact Nat.le_antisymm hl hseq_pos
 
-lemma iterate' {m x y : ℕ} (hmgt : m > 0) (hf : f x ≡ f y [MOD m]) (hm : 3^m ≡ 1 [MOD m]) :
-  x ≡ y [MOD order m 3] -> x ≡ y [MOD m] := by
-  intro hstep
-
+lemma iterate' {m x y : ℕ} (hmgt : m > 0) (hf : f x ≡ f y [MOD m]) (hm : 3^m ≡ 1 [MOD m])
+  (h : x ≡ y [MOD order m 3]) : x ≡ y [MOD m] := by
   wlog hge : x >= y
   {
     have hyx : y >= x := Nat.le_of_not_le hge
     apply Nat.ModEq.symm at hf
-    apply Nat.ModEq.symm at hstep
+    apply Nat.ModEq.symm at h
     apply Nat.ModEq.symm
-    exact this hmgt hf hm hstep hyx
+    exact this hmgt hf hm h hyx
   }
 
   unfold f at hf
-
   let d := order m 3
 
   have hdgt : d > 0 := seq_pos hmgt hm 1
-  have ⟨t, hdt⟩ : ∃ t, x = y + t * d := (Helper.add_fac_iff_mod hdgt hge).mp hstep
+  have ⟨t, hdt⟩ : ∃ t, x = y + t * d := (Helper.add_fac_iff_mod hdgt hge).mp h
   have h3dm : 3^d ≡ 1 [MOD m] := seq_pow_mod_prev m 0
   have h3xym : 3^x ≡ 3^y [MOD m] := by
     rw [hdt, pow_add]
