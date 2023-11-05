@@ -120,7 +120,7 @@ lemma seq_pos {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m]) k : seq m k > 0 := by
     exact h
   }
 
-lemma seq_dec {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m]) {k} (hg1 : seq m k > 1)
+lemma seq_dec {m k} (hm : m > 0) (h : 3^m ≡ 1 [MOD m]) (hg1 : seq m k > 1)
   : seq m k.succ < seq m k := by
   have hcoprime : Nat.Coprime 3 (seq m k) := by
     apply pow_ndvd hm
@@ -248,7 +248,7 @@ lemma iterate' {m x y : ℕ} (hmgt : m > 0) (hf : f x ≡ f y [MOD m]) (hm : 3^m
 
   exact Nat.ModEq.add_left_cancel h3xym hf
 
-lemma iterate {m x y k : ℕ} (hmgt : m > 0) (hf : f x ≡ f y [MOD m]) (hm : 3^m ≡ 1 [MOD m])
+lemma iterate {m x y k : ℕ} (hmgt : m > 0) (hm : 3^m ≡ 1 [MOD m]) (hf : f x ≡ f y [MOD m])
   (h : x ≡ y [MOD seq m k.succ]) : x ≡ y [MOD seq m k] := by
   have hsmk : 3^seq m k ≡ 1 [MOD seq m k] := seq_pow_one hm k
   have hpos : seq m k > 0 := seq_pos hmgt hm k
@@ -259,7 +259,7 @@ lemma iterate {m x y k : ℕ} (hmgt : m > 0) (hf : f x ≡ f y [MOD m]) (hm : 3^
     exact Nat.ModEq.of_mul_right d hf
   exact iterate' hpos hfsmk hsmk h
 
-theorem bijection_mod_m {m x y : ℕ} (hmgt : m > 0) (hf : f x ≡ f y [MOD m]) (hm : 3^m ≡ 1 [MOD m])
+theorem bijection_mod_m {m x y : ℕ} (hmgt : m > 0) (hm : 3^m ≡ 1 [MOD m]) (hf : f x ≡ f y [MOD m])
   : x ≡ y [MOD m] := by
   have hxy1 : x ≡ y [MOD 1] := Nat.modEq_one
   have ⟨idx, hidx⟩ := seq_one hmgt hm
@@ -281,7 +281,7 @@ theorem bijection_mod_m {m x y : ℕ} (hmgt : m > 0) (hf : f x ≡ f y [MOD m]) 
     {
       unfold_let at hcb
       rw [hb1] at hcb
-      exact iterate hmgt hf hm hcb
+      exact iterate hmgt hm hf hcb
     }
   }
   {
