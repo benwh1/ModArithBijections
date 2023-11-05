@@ -1,10 +1,4 @@
-import Mathlib.Data.Nat.ModEq
-import Mathlib.Data.Nat.Parity
 import Mathlib.Data.ZMod.Basic
-import Mathlib.Data.ZMod.Defs
-import Mathlib.Init.Function
-
-def f (x : ℕ) : ℕ := 3 ^ x + x
 
 namespace Helper
   lemma zmod_iff_add_fac {a b c : ℤ} : a ≡ b [ZMOD c] ↔ ∃ t, a = b + t * c := by

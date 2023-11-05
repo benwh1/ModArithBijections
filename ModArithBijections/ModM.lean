@@ -8,7 +8,9 @@ import Mathlib.GroupTheory.OrderOfElement
 import Mathlib.Init.Function
 import Mathlib.Order.RelClasses
 import Mathlib.Tactic.NormNum.Core
-import ModArithBijections.Basic
+import ModArithBijections.Helper
+
+def f (x : ℕ) : ℕ := 3 ^ x + x
 
 noncomputable def order (m n : ℕ) := orderOf (n : ZMod m)
 
