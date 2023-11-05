@@ -141,27 +141,6 @@ lemma seq_one_next {m} (h : seq m k = 1) : seq m k.succ = 1 := by
   unfold order
   simp
 
-lemma seq_zero_next {m} (h : seq m k = 0) : seq m k.succ = 0 := by
-  simp
-  rw [h]
-  unfold order
-  simp
-  apply orderOf_eq_zero_iff.mpr
-  intro hfin
-  unfold IsOfFinOrder at hfin
-  unfold Function.periodicPts at hfin
-  simp at hfin
-  have ⟨n, ⟨hn0, hn⟩⟩ := hfin
-  unfold Function.IsPeriodicPt Function.IsFixedPt at hn
-  simp at hn
-  have hn : (↑(3^n) : ZMod 0) = 1 := by simp; apply hn
-  have hn := (ZMod.eq_iff_modEq_nat _).mp hn
-  simp at hn
-  have hn : 3^n = 3^0 := hn
-  have hneq0 := Nat.pow_right_injective (by norm_num) hn
-  rw [hneq0] at hn0
-  exact LT.lt.false hn0
-
 lemma seq_one {m} (hm : m > 0) (h : 3^m ≡ 1 [MOD m])
   : ∃ k, seq m k = 1 := by
   let r := Nat.lt
