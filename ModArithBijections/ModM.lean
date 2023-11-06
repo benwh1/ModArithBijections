@@ -10,7 +10,7 @@ noncomputable def seq b m n := match n with
   | 0 => m
   | Nat.succ k => order (seq b m k) b
 
-lemma order_lt {m} (hm : m > 1) (hcoprime : Nat.Coprime b m) : order m b < m := by
+lemma order_lt {b m} (hm : m > 1) (hcoprime : Nat.Coprime b m) : order m b < m := by
   have ⟨k, hk1, hkm, hk⟩ : ∃ k, 1 <= k ∧ k < m ∧ b^k ≡ 1 [MOD m] := by
     use Nat.totient m
     have hm0 : m > 0 := Nat.zero_lt_of_lt hm
@@ -26,7 +26,7 @@ lemma order_lt {m} (hm : m > 1) (hcoprime : Nat.Coprime b m) : order m b < m := 
   have hk : order m b <= k := orderOf_le_of_pow_eq_one hk1 hk
   exact Nat.lt_of_le_of_lt hk hkm
 
-lemma order_dvd {m x} (hx : b^x ≡ 1 [MOD m]) : order m b ∣ x := by
+lemma order_dvd {b m x} (hx : b^x ≡ 1 [MOD m]) : order m b ∣ x := by
   unfold order
   have h : (b : ZMod m)^x = 1 := by
     apply (ZMod.eq_iff_modEq_nat m).mpr at hx
@@ -34,7 +34,7 @@ lemma order_dvd {m x} (hx : b^x ≡ 1 [MOD m]) : order m b ∣ x := by
     exact hx
   exact orderOf_dvd_of_pow_eq_one h
 
-lemma pow_ndvd {m k} (hk : k > 0) (h : b^k ≡ 1 [MOD m]) : Nat.Coprime b m := by
+lemma pow_ndvd {b m k} (hk : k > 0) (h : b^k ≡ 1 [MOD m]) : Nat.Coprime b m := by
   have hk1 : k.pred + 1 = k := Nat.succ_pred_eq_of_pos hk
   apply Nat.coprime_of_mul_modEq_one (b^k.pred)
   rw [mul_comm]
