@@ -35,15 +35,15 @@ lemma order_dvd {m x} (hx : 3^x ≡ 1 [MOD m]) : order m 3 ∣ x := by
     exact hx
   exact orderOf_dvd_of_pow_eq_one h
 
-lemma pow_ndvd {m a} (ha : a > 0) (h : 3^a ≡ 1 [MOD m]) : Nat.Coprime 3 m := by
+lemma pow_ndvd {m k} (hk : k > 0) (h : 3^k ≡ 1 [MOD m]) : Nat.Coprime 3 m := by
   have hprime : Nat.Prime 3 := by norm_num
   apply (Nat.Prime.coprime_iff_not_dvd hprime).mpr
   intro hdvd
 
-  have ⟨k, hk⟩ := hdvd
-  rw [hk] at h
+  have ⟨d, hd⟩ := hdvd
+  rw [hd] at h
   apply Nat.ModEq.of_mul_right at h
-  have hdvd2 : 3 ∣ 3^a := pow_dvd_pow 3 ha
+  have hdvd2 : 3 ∣ 3^k := pow_dvd_pow 3 hk
   have h0 := Nat.modEq_zero_iff_dvd.mpr hdvd2
   have h01 := Nat.ModEq.trans (h.symm) h0
   simp at h01
