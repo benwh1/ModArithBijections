@@ -1,7 +1,7 @@
 import Mathlib.FieldTheory.Finite.Basic
 import ModArithBijections.Helper
 
-def f (a b x : ℕ) : ℕ := a * b ^ x + x
+def f (a b c x : ℕ) : ℕ := a * b^x + c * x
 
 noncomputable def order (m n : ℕ) := orderOf (n : ZMod m)
 
@@ -173,15 +173,15 @@ lemma seq_one {b m} (hmgt : m > 0) (hm : b^m ≡ 1 [MOD m]) : ∃ k, seq b m k =
   use l
   exact Nat.le_antisymm hl hseq_pos
 
-lemma iterate' {a b m x y : ℕ} (hmgt : m > 0) (hf : f a b x ≡ f a b y [MOD m]) (hm : b^m ≡ 1 [MOD m])
-  (h : x ≡ y [MOD order m b]) : x ≡ y [MOD m] := by
+lemma iterate' {a b c m x y : ℕ} (hmgt : m > 0) (hm : b^m ≡ 1 [MOD m]) (hcm : Nat.Coprime c m)
+  (hf : f a b c x ≡ f a b c y [MOD m]) (h : x ≡ y [MOD order m b]) : x ≡ y [MOD m] := by
   wlog hge : x >= y
   {
     have hyx : y >= x := Nat.le_of_not_le hge
     apply Nat.ModEq.symm at hf
     apply Nat.ModEq.symm at h
     apply Nat.ModEq.symm
-    exact this hmgt hf hm h hyx
+    exact this hmgt hm hcm hf h hyx
   }
 
   unfold f at hf
@@ -198,21 +198,27 @@ lemma iterate' {a b m x y : ℕ} (hmgt : m > 0) (hf : f a b x ≡ f a b y [MOD m
     rw [mul_comm, pow_mul]
     exact Nat.ModEq.pow t hbdm
 
-  exact Nat.ModEq.add_left_cancel habxym hf
+  have hcxcy : c * x ≡ c * y [MOD m] := Nat.ModEq.add_left_cancel habxym hf
+  exact Nat.ModEq.cancel_left_of_coprime hcm.symm hcxcy
 
-lemma iterate {a b m x y k : ℕ} (hmgt : m > 0) (hm : b^m ≡ 1 [MOD m]) (hf : f a b x ≡ f a b y [MOD m])
-  (h : x ≡ y [MOD seq b m k.succ]) : x ≡ y [MOD seq b m k] := by
+lemma iterate {a b c m x y k : ℕ} (hmgt : m > 0) (hm : b^m ≡ 1 [MOD m]) (hcm : Nat.Coprime c m)
+  (hf : f a b c x ≡ f a b c y [MOD m]) (h : x ≡ y [MOD seq b m k.succ])
+  : x ≡ y [MOD seq b m k] := by
   have hsmk : b^seq b m k ≡ 1 [MOD seq b m k] := seq_pow_one hm k
   have hpos : seq b m k > 0 := seq_pos hmgt hm k
   have hdvd : seq b m k ∣ m := seq_dvd_seq_zero hm k
-  have hfsmk : f a b x ≡ f a b y [MOD seq b m k] := by
+  have hfsmk : f a b c x ≡ f a b c y [MOD seq b m k] := by
     have ⟨d, hd⟩ := hdvd
     nth_rewrite 1 [hd] at hf
     exact Nat.ModEq.of_mul_right d hf
-  exact iterate' hpos hfsmk hsmk h
+  have hcs : Nat.Coprime c (seq b m k) := by
+    have ⟨q, hq⟩ := hdvd
+    rw [hq] at hcm
+    exact Nat.Coprime.coprime_mul_right_right hcm
+  apply iterate' hpos hsmk hcs hfsmk h
 
-theorem bijection_mod_m {a b m x y : ℕ} (hmgt : m > 0) (hm : b^m ≡ 1 [MOD m]) (hf : f a b x ≡ f a b y [MOD m])
-  : x ≡ y [MOD m] := by
+theorem bijection_mod_m {a b c m x y : ℕ} (hmgt : m > 0) (hm : b^m ≡ 1 [MOD m]) (hcm : Nat.Coprime c m)
+  (hf : f a b c x ≡ f a b c y [MOD m]) : x ≡ y [MOD m] := by
   have hxy1 : x ≡ y [MOD 1] := Nat.modEq_one
   have ⟨idx, hidx⟩ := seq_one hmgt hm
 
@@ -233,7 +239,7 @@ theorem bijection_mod_m {a b m x y : ℕ} (hmgt : m > 0) (hm : b^m ≡ 1 [MOD m]
     {
       unfold_let at hcb
       rw [hb1] at hcb
-      exact iterate hmgt hm hf hcb
+      exact iterate hmgt hm hcm hf hcb
     }
   }
   {
