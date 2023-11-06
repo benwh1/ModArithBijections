@@ -1,7 +1,7 @@
 import Mathlib.FieldTheory.Finite.Basic
 import ModArithBijections.Helper
 
-def f (x : ℕ) : ℕ := 3 ^ x + x
+def f (a x : ℕ) : ℕ := a * 3 ^ x + x
 
 noncomputable def order (m n : ℕ) := orderOf (n : ZMod m)
 
@@ -179,7 +179,7 @@ lemma seq_one {m} (hmgt : m > 0) (hm : 3^m ≡ 1 [MOD m]) : ∃ k, seq m k = 1 :
   use l
   exact Nat.le_antisymm hl hseq_pos
 
-lemma iterate' {m x y : ℕ} (hmgt : m > 0) (hf : f x ≡ f y [MOD m]) (hm : 3^m ≡ 1 [MOD m])
+lemma iterate' {a m x y : ℕ} (hmgt : m > 0) (hf : f a x ≡ f a y [MOD m]) (hm : 3^m ≡ 1 [MOD m])
   (h : x ≡ y [MOD order m 3]) : x ≡ y [MOD m] := by
   wlog hge : x >= y
   {
@@ -196,28 +196,28 @@ lemma iterate' {m x y : ℕ} (hmgt : m > 0) (hf : f x ≡ f y [MOD m]) (hm : 3^m
   have hdgt : d > 0 := seq_pos hmgt hm 1
   have ⟨t, hdt⟩ : ∃ t, x = y + t * d := (Helper.add_fac_iff_mod hdgt hge).mp h
   have h3dm : 3^d ≡ 1 [MOD m] := seq_pow_mod_prev m 0
-  have h3xym : 3^x ≡ 3^y [MOD m] := by
+  have ha3xym : a * 3^x ≡ a * 3^y [MOD m] := by
     rw [hdt, pow_add]
     have h0 : 3^y = 3^y * 1^t := by simp
     nth_rewrite 2 [h0]
-    apply Nat.ModEq.mul_left
+    repeat apply Nat.ModEq.mul_left
     rw [mul_comm, pow_mul]
     exact Nat.ModEq.pow t h3dm
 
-  exact Nat.ModEq.add_left_cancel h3xym hf
+  exact Nat.ModEq.add_left_cancel ha3xym hf
 
-lemma iterate {m x y k : ℕ} (hmgt : m > 0) (hm : 3^m ≡ 1 [MOD m]) (hf : f x ≡ f y [MOD m])
+lemma iterate {a m x y k : ℕ} (hmgt : m > 0) (hm : 3^m ≡ 1 [MOD m]) (hf : f a x ≡ f a y [MOD m])
   (h : x ≡ y [MOD seq m k.succ]) : x ≡ y [MOD seq m k] := by
   have hsmk : 3^seq m k ≡ 1 [MOD seq m k] := seq_pow_one hm k
   have hpos : seq m k > 0 := seq_pos hmgt hm k
   have hdvd : seq m k ∣ m := seq_dvd_seq_zero hm k
-  have hfsmk : f x ≡ f y [MOD seq m k] := by
+  have hfsmk : f a x ≡ f a y [MOD seq m k] := by
     have ⟨d, hd⟩ := hdvd
     nth_rewrite 1 [hd] at hf
     exact Nat.ModEq.of_mul_right d hf
   exact iterate' hpos hfsmk hsmk h
 
-theorem bijection_mod_m {m x y : ℕ} (hmgt : m > 0) (hm : 3^m ≡ 1 [MOD m]) (hf : f x ≡ f y [MOD m])
+theorem bijection_mod_m {a m x y : ℕ} (hmgt : m > 0) (hm : 3^m ≡ 1 [MOD m]) (hf : f a x ≡ f a y [MOD m])
   : x ≡ y [MOD m] := by
   have hxy1 : x ≡ y [MOD 1] := Nat.modEq_one
   have ⟨idx, hidx⟩ := seq_one hmgt hm
